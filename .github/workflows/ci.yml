@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AGE_ENCRYPTION_KEY: ${{ secrets.AGE_ENCRYPTION_KEY }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  SQLITE_URL: sqlite:///./test.db
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx
+        
+    - name: Run tests
+      run: |
+        # Generate test keys if not provided
+        if [ -z "$AGE_ENCRYPTION_KEY" ]; then
+          export AGE_ENCRYPTION_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+        fi
+        if [ -z "$SECRET_KEY" ]; then
+          export SECRET_KEY=$(openssl rand -hex 32)
+        fi
+        pytest tests/ -v
+        
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8
+        
+    - name: Run black
+      run: black . --check
+      
+    - name: Run flake8
+      run: flake8 . --max-line-length=100 --extend-ignore=E203

@@ -1,0 +1,30 @@
+# Basic styling for the app
+body {
+    padding-bottom: 2rem;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+/* Form styles */
+.form-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Table styles */
+.table-responsive {
+    margin-top: 1rem;
+}
+
+/* Card styles */
+.card {
+    margin-bottom: 1rem;
+}
+
+/* Alert styles */
+.alert {
+    margin-bottom: 1rem;
+}
