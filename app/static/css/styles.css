@@ -55,6 +55,22 @@ body {
     align-items: center;
 }
 
+/* Try to visually separate options in large multi-selects (browser support varies) */
+#reportStudent {
+    background-clip: padding-box;
+}
+#reportStudent option {
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid #eef;
+}
+
+#selectedStudentsList .student-chip {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    padding: 0.5rem;
+    border-radius: 6px;
+}
+
 /* Small helpers */
 .muted { color: var(--muted); }
 

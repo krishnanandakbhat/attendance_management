@@ -219,6 +219,8 @@ document.getElementById('selectAllStudents').addEventListener('change', function
     for (let i = 0; i < select.options.length; i++) {
         select.options[i].selected = this.checked;
     }
+    // update visible selected list
+    if (typeof renderSelectedStudents === 'function') renderSelectedStudents();
 });
 
 // Add JSZip CDN
@@ -255,6 +257,8 @@ fetch('/api/v1/students/', { credentials: 'include' })
             option.dataset.price = s.price_per_class;
             select.appendChild(option);
         });
+        // render selected students immediately after options are populated
+        if (typeof renderSelectedStudents === 'function') renderSelectedStudents();
     })
     .catch(err => {
         console.error('Failed to load students:', err);
