@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>Students
-    <a href="{{ url_for('create_student') }}" class="btn btn-primary float-end">Add Student</a>
+    <a href="/students/create" class="btn btn-primary float-end">Add Student</a>
 </h2>
 
 <div class="table-responsive">
@@ -15,7 +15,7 @@
                 <th>Name</th>
                 <th>Age</th>
                 <th>Level</th>
-                <th>Price/Class</th>
+                <th>Price/Class (£)</th>
                 <th>Actions</th>
             </tr>
         </thead>

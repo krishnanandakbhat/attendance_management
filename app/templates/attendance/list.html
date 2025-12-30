@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+<h2>Attendance Records
+    <a href="/attendance/mark" class="btn btn-primary float-end">Mark Attendance</a>
+</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Filter Records</h5>
+        <form id="filterForm" class="row g-3">
+            <div class="col-md-4">
+                <label for="filterStudent" class="form-label">Student</label>
+                <select class="form-control" id="filterStudent" name="student_id">
+                    <option value="">All Students</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="filterStartDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="filterStartDate" name="start_date">
+            </div>
+            <div class="col-md-3">
+                <label for="filterEndDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="filterEndDate" name="end_date">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Marked At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceTableBody">
+            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+let studentsMap = {};
+
+// Load students for filter dropdown
+fetch('/api/v1/students/', { credentials: 'include' })
+    .then(resp => resp.json())
+    .then(students => {
+        const select = document.getElementById('filterStudent');
+        students.forEach(s => {
+            studentsMap[s.id] = s.name;
+            const option = document.createElement('option');
+            option.value = s.id;
+            option.textContent = s.name;
+            select.appendChild(option);
+        });
+        loadAttendance();
+    })
+    .catch(err => {
+        console.error('Failed to load students:', err);
+        loadAttendance();
+    });
+
+function loadAttendance(filters = {}) {
+    const tbody = document.getElementById('attendanceTableBody');
+    
+    let url = '/api/v1/attendance/?';
+    if (filters.student_id) url += `student_id=${filters.student_id}&`;
+    if (filters.start_date) url += `start_date=${filters.start_date}&`;
+    if (filters.end_date) url += `end_date=${filters.end_date}&`;
+    
+    fetch(url, { credentials: 'include' })
+        .then(resp => {
+            if (!resp.ok) throw new Error('Failed to fetch attendance');
+            return resp.json();
+        })
+        .then(data => {
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No attendance records found. <a href="/attendance/mark">Mark attendance</a></td></tr>';
+                return;
+            }
+            data.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${a.id}</td>
+                    <td>${studentsMap[a.student_id] || 'Unknown'}</td>
+                    <td>${new Date(a.date).toLocaleDateString()}</td>
+                    <td>${new Date(a.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="${a.id}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Add delete handlers
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const attendanceId = this.getAttribute('data-id');
+                    if (!confirm('Are you sure you want to delete this attendance record?')) {
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(`/api/v1/attendance/${attendanceId}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
+                        
+                        if (response.ok) {
+                            loadAttendance(getCurrentFilters());
+                        } else {
+                            const error = await response.json();
+                            alert('Error: ' + (error.detail || 'Failed to delete record'));
+                        }
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    }
+                });
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading attendance records</td></tr>';
+        });
+}
+
+function getCurrentFilters() {
+    return {
+        student_id: document.getElementById('filterStudent').value,
+        start_date: document.getElementById('filterStartDate').value,
+        end_date: document.getElementById('filterEndDate').value
+    };
+}
+
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    loadAttendance(getCurrentFilters());
+});
+</script>
+{% endblock %}

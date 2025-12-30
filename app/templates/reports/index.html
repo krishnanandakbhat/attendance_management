@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<h2>Attendance Reports</h2>
+
+<!-- Add jsPDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Student Attendance Summary</h5>
+                <p class="card-text">View attendance statistics and totals for each student over a date range.</p>
+                <form id="studentSummaryForm">
+                    <div class="mb-3">
+                        <label for="summaryStartDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="summaryStartDate" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="summaryEndDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="summaryEndDate" name="end_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Individual Student Report</h5>
+                <p class="card-text">View detailed attendance records and calculate fees for a specific student.</p>
+                <form id="studentDetailForm">
+                    <div class="mb-3">
+                        <label for="reportStudent" class="form-label">Student</label>
+                        <div class="d-flex align-items-center mb-2">
+                            <input type="checkbox" id="selectAllStudents" class="form-check-input me-2">
+                            <label for="selectAllStudents" class="form-check-label me-2">Select All</label>
+                        </div>
+                        <select class="form-control" id="reportStudent" name="student_id" required multiple size="6" style="height:auto;"></select>
+                        <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple students.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="detailStartDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="detailStartDate" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="detailEndDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="detailEndDate" name="end_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                    <button type="button" class="btn btn-success ms-2" id="downloadZipBtn">
+                        <i class="bi bi-download"></i> Download Selected as Zip
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reportResults" class="mt-4"></div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+// Generate PDF for an individual student (used for both UI and zip)
+async function generateIndividualPDF(student, startDate, endDate, attendance) {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text('Individual Student Report', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`${student.name} (${student.level})`, pageWidth / 2, 28, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`, pageWidth / 2, 35, { align: 'center' });
+
+    // Summary
+    const classes = attendance.length;
+    const pricePerClass = parseFloat(student.price_per_class);
+    const totalFees = classes * pricePerClass;
+    doc.setFontSize(11);
+    doc.text(`Classes Attended: ${classes}`, 20, 45);
+    doc.text(`Price per Class: £${pricePerClass.toFixed(2)}`, 20, 52);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Total Fees: £${totalFees.toFixed(2)}`, 20, 59);
+    doc.setFont(undefined, 'normal');
+
+    // Attendance details table
+    const rows = attendance.map(a => [
+        new Date(a.date).toLocaleDateString()
+    ]);
+    doc.autoTable({
+        startY: 70,
+        head: [['Date']],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] }
+    });
+
+    return doc;
+}
+
+function downloadPDF(reportType) {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    if (reportType === 'summary') {
+        // ...existing code...
+        // (no change to summary PDF logic)
+        const startDate = document.getElementById('summaryStartDate').value;
+        const endDate = document.getElementById('summaryEndDate').value;
+        doc.setFontSize(18);
+        doc.text('Student Attendance Summary Report', pageWidth / 2, 20, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text(`Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`, pageWidth / 2, 28, { align: 'center' });
+        const table = document.querySelector('#reportResults table');
+        if (!table) {
+            alert('Please generate a report first');
+            return;
+        }
+        const rows = [];
+        const tbody = table.querySelector('tbody');
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => row.push(td.textContent.trim()));
+            rows.push(row);
+        });
+        const footer = table.querySelector('tfoot tr');
+        const total = footer.querySelector('th:last-child').textContent.trim();
+        doc.autoTable({
+            startY: 35,
+            head: [['Student', 'Level', 'Classes', 'Price/Class', 'Total Fees']],
+            body: rows,
+            foot: [['', '', '', 'Grand Total', total]],
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185] },
+            footStyles: { fillColor: [52, 152, 219], fontStyle: 'bold' }
+        });
+        const timestamp = new Date().toISOString().split('T')[0];
+        doc.save(`attendance-report-${timestamp}.pdf`);
+    } else if (reportType === 'individual') {
+        // Use the selected student and attendance data from the UI
+        const select = document.getElementById('reportStudent');
+        const studentId = select.value;
+        const startDate = document.getElementById('detailStartDate').value;
+        const endDate = document.getElementById('detailEndDate').value;
+        if (!studentId) {
+            alert('Please select a student and generate the report first.');
+            return;
+        }
+        // Fetch student and attendance data
+        fetch(`/api/v1/students/`, { credentials: 'include' })
+            .then(resp => resp.json())
+            .then(students => {
+                const student = students.find(s => s.id == studentId);
+                if (!student) {
+                    alert('Student not found');
+                    return;
+                }
+                fetch(`/api/v1/attendance/?student_id=${studentId}&start_date=${startDate}&end_date=${endDate}`, { credentials: 'include' })
+                    .then(resp => resp.json())
+                    .then(async attendance => {
+                        const doc = await generateIndividualPDF(student, startDate, endDate, attendance);
+                        const timestamp = new Date().toISOString().split('T')[0];
+                        doc.save(`attendance-report-${student.name.replace(/\s+/g, '_')}-${timestamp}.pdf`);
+                    });
+            });
+    }
+}
+// --- ZIP download for multiple students ---
+document.getElementById('downloadZipBtn').addEventListener('click', async function() {
+    const select = document.getElementById('reportStudent');
+    const selectedOptions = Array.from(select.selectedOptions);
+    if (selectedOptions.length === 0) {
+        alert('Please select at least one student.');
+        return;
+    }
+    const startDate = document.getElementById('detailStartDate').value;
+    const endDate = document.getElementById('detailEndDate').value;
+    if (!startDate || !endDate) {
+        alert('Please select a date range.');
+        return;
+    }
+    // Load all students
+    const studentsResp = await fetch('/api/v1/students/', { credentials: 'include' });
+    const students = await studentsResp.json();
+    // Prepare zip
+    const zip = new JSZip();
+    for (const opt of selectedOptions) {
+        const studentId = opt.value;
+        const student = students.find(s => s.id == studentId);
+        if (!student) continue;
+        const attendanceResp = await fetch(`/api/v1/attendance/?student_id=${studentId}&start_date=${startDate}&end_date=${endDate}`, { credentials: 'include' });
+        const attendance = await attendanceResp.json();
+        const doc = await generateIndividualPDF(student, startDate, endDate, attendance);
+        const pdfBlob = doc.output('blob');
+        const fileName = `attendance-report-${student.name.replace(/\s+/g, '_')}.pdf`;
+        zip.file(fileName, pdfBlob);
+    }
+    // Generate and download zip
+    zip.generateAsync({ type: 'blob' }).then(function(content) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = 'attendance-reports.zip';
+        a.click();
+    });
+});
+
+// Select All functionality
+document.getElementById('selectAllStudents').addEventListener('change', function() {
+    const select = document.getElementById('reportStudent');
+    for (let i = 0; i < select.options.length; i++) {
+        select.options[i].selected = this.checked;
+    }
+});
+
+// Add JSZip CDN
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</script>
+
+<script>
+// Set default dates (last 30 days)
+const today = new Date();
+const thirtyDaysAgo = new Date(today);
+thirtyDaysAgo.setDate(today.getDate() - 30);
+
+const dateInputs = ['summaryStartDate', 'summaryEndDate', 'detailStartDate', 'detailEndDate'];
+dateInputs.forEach((id, index) => {
+    const input = document.getElementById(id);
+    if (index % 2 === 0) {
+        input.valueAsDate = thirtyDaysAgo;
+    } else {
+        input.valueAsDate = today;
+    }
+});
+
+// Load students for dropdown
+fetch('/api/v1/students/', { credentials: 'include' })
+    .then(resp => resp.json())
+    .then(students => {
+        const select = document.getElementById('reportStudent');
+        students.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s.id;
+            option.textContent = `${s.name} (${s.level})`;
+            option.dataset.price = s.price_per_class;
+            select.appendChild(option);
+        });
+    })
+    .catch(err => {
+        console.error('Failed to load students:', err);
+    });
+
+// Student Summary Report
+document.getElementById('studentSummaryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const startDate = document.getElementById('summaryStartDate').value;
+    const endDate = document.getElementById('summaryEndDate').value;
+    
+    try {
+        const [studentsResp, attendanceResp] = await Promise.all([
+            fetch('/api/v1/students/', { credentials: 'include' }),
+            fetch(`/api/v1/attendance/?start_date=${startDate}&end_date=${endDate}`, { credentials: 'include' })
+        ]);
+        
+        const students = await studentsResp.json();
+        const attendance = await attendanceResp.json();
+        
+        // Calculate attendance per student
+        const attendanceMap = {};
+        attendance.forEach(a => {
+            if (!attendanceMap[a.student_id]) {
+                attendanceMap[a.student_id] = [];
+            }
+            attendanceMap[a.student_id].push(a);
+        });
+        
+        let html = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Student Attendance Summary</h5>
+                    <p class="text-muted">Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Level</th>
+                                <th>Classes Attended</th>
+                                <th>Price per Class</th>
+                                <th>Total Fees</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        let grandTotal = 0;
+        students.forEach(s => {
+            const count = attendanceMap[s.id] ? attendanceMap[s.id].length : 0;
+            const total = count * parseFloat(s.price_per_class);
+            grandTotal += total;
+            
+            html += `
+                <tr>
+                    <td>${s.name}</td>
+                    <td>${s.level}</td>
+                    <td>${count}</td>
+                    <td>£${parseFloat(s.price_per_class).toFixed(2)}</td>
+                    <td>£${total.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <th colspan="4">Grand Total</th>
+                                <th>£${grandTotal.toFixed(2)}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <button class="btn btn-success mt-3" onclick="downloadPDF('summary')">
+                        <i class="bi bi-download"></i> Download as PDF
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('reportResults').innerHTML = html;
+    } catch (error) {
+        document.getElementById('reportResults').innerHTML = `
+            <div class="alert alert-danger">Error generating report: ${error.message}</div>
+        `;
+    }
+});
+
+// Individual Student Report
+document.getElementById('studentDetailForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const studentId = document.getElementById('reportStudent').value;
+    const startDate = document.getElementById('detailStartDate').value;
+    const endDate = document.getElementById('detailEndDate').value;
+    
+    const select = document.getElementById('reportStudent');
+    const selectedOption = select.options[select.selectedIndex];
+    const studentName = selectedOption.text;
+    const pricePerClass = parseFloat(selectedOption.dataset.price);
+    
+    try {
+        const response = await fetch(
+            `/api/v1/attendance/?student_id=${studentId}&start_date=${startDate}&end_date=${endDate}`,
+            { credentials: 'include' }
+        );
+        
+        const attendance = await response.json();
+        const total = attendance.length * pricePerClass;
+        
+        let html = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Individual Student Report: ${studentName}</h5>
+                    <p class="text-muted">Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3>${attendance.length}</h3>
+                                    <p class="mb-0">Classes Attended</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3>£${pricePerClass.toFixed(2)}</h3>
+                                    <p class="mb-0">Price per Class</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3>£${total.toFixed(2)}</h3>
+                                    <p class="mb-0">Total Fees</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6>Attendance Details</h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        attendance.forEach(a => {
+            html += `
+                <tr>
+                    <td>${new Date(a.date).toLocaleDateString()}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                    <button class="btn btn-success mt-3" onclick="downloadPDF('individual')">
+                        <i class="bi bi-download"></i> Download as PDF
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('reportResults').innerHTML = html;
+    } catch (error) {
+        document.getElementById('reportResults').innerHTML = `
+            <div class="alert alert-danger">Error generating report: ${error.message}</div>
+        `;
+    }
+});
+</script>
+{% endblock %}
