@@ -102,7 +102,12 @@ async function generateIndividualPDF(student, startDate, endDate, attendance) {
         head: [['Date']],
         body: rows,
         theme: 'grid',
-        headStyles: { fillColor: [41, 128, 185] }
+        headStyles: { fillColor: [41, 128, 185] },
+        // keep the date column compact instead of stretching full page
+        tableWidth: 'auto',
+        columnStyles: {
+            0: { cellWidth: 50 }
+        }
     });
 
     return doc;

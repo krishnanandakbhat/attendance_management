@@ -1,4 +1,6 @@
 // Utility functions for the frontend
+// Global container for students used by multiple handlers (keeps scope across modules)
+var studentsData = window.studentsData || [];
 
 // Show loading state on form submit
 document.addEventListener('DOMContentLoaded', function() {
@@ -14,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Modal Confirm handler: when user clicks Download in modal
     document.getElementById('confirmDownloadReportBtn')?.addEventListener('click', async function() {
+        const _btn = this;
+        if (_btn.dataset.busy === '1') return; // prevent duplicate/rapid clicks
+        _btn.dataset.busy = '1';
+        _btn.disabled = true;
         const studentId = document.getElementById('reportStudentId').value;
         const studentName = document.getElementById('reportStudentName').value || `student_${studentId}`;
         const startDate = document.getElementById('reportStartDate').value;
@@ -70,12 +76,25 @@ document.addEventListener('DOMContentLoaded', function() {
             doc.setFont(undefined, 'normal');
 
             const rows = attendance.map(a => [new Date(a.date).toLocaleDateString()]);
-            doc.autoTable({ startY: 70, head: [['Date']], body: rows, theme: 'grid', headStyles: { fillColor: [41, 128, 185] } });
+            doc.autoTable({
+                startY: 70,
+                head: [['Date']],
+                body: rows,
+                theme: 'grid',
+                headStyles: { fillColor: [41, 128, 185] },
+                tableWidth: 'auto',
+                columnStyles: { 0: { cellWidth: 50 } }
+            });
 
             const timestamp = new Date().toISOString().split('T')[0];
             doc.save(`attendance-report-${studentName.replace(/\s+/g, '_')}-${timestamp}.pdf`);
+            // reset guard after download
+            _btn.dataset.busy = '0';
+            _btn.disabled = false;
         } catch (err) {
             alert('Error generating report: ' + err.message);
+            const _btn2 = document.getElementById('confirmDownloadReportBtn');
+            if (_btn2) { _btn2.dataset.busy = '0'; _btn2.disabled = false; }
         }
     });
 
@@ -113,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!tbody) return;
 
     // load students and enable client-side sorting
-    let studentsData = [];
+    studentsData = studentsData || [];
     let currentSort = { key: 'name', dir: 'asc' };
 
     fetch('/api/v1/students/', { credentials: 'include' })
