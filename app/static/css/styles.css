@@ -1,10 +1,23 @@
-# Basic styling for the app
+/* App base styles */
+:root {
+    --brand-color: #2a7ae2; /* primary accent */
+    --muted: #6c757d;
+}
+
 body {
-    padding-bottom: 2rem;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background-color: #f8fafc;
+    color: #222;
+    padding-bottom: 2.5rem;
 }
 
 .navbar {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.5rem;
 }
 
 /* Form styles */
@@ -14,17 +27,28 @@ body {
     margin-top: 0.25rem;
 }
 
-/* Table styles */
-.table-responsive {
-    margin-top: 1rem;
-}
-
-/* Card styles */
+/* Cards */
 .card {
     margin-bottom: 1rem;
+    border: 0;
+    border-radius: .75rem;
+    box-shadow: 0 4px 18px rgba(16,24,40,0.06);
 }
 
-/* Alert styles */
-.alert {
-    margin-bottom: 1rem;
+/* Table styles */
+.table thead th {
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+    font-weight: 600;
+    color: #1f2d3d;
 }
+
+.table tbody tr:hover { background: #fbfdff; }
+
+/* Alerts spacing */
+.alert { margin-bottom: 1rem; }
+
+/* Small helpers */
+.muted { color: var(--muted); }
+
+/* Responsive container tweaks */
+.container { max-width: 1100px; }
