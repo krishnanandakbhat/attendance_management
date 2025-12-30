@@ -1,38 +1,41 @@
-INFO:     Started server process [42643]
+INFO:     Started server process [50649]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:64769 - "GET /auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64769 - "POST /auth/login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:64769 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64769 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64770 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "GET /css/styles.css HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "GET /js/main.js?v=2 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:64783 - "GET /auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "POST /auth/login HTTP/1.1" 303 See Other
-INFO:     127.0.0.1:64783 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64783 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:64783 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64796 - "GET /attendance HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64796 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:64798 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64798 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64798 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64804 - "GET /attendance HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64804 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:64806 - "GET /api/v1/students/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64806 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64810 - "GET /api/v1/attendance/?start_date=2025-12-01&end_date=2025-12-15& HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64817 - "GET /students HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64817 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:64817 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65164 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65164 - "GET /js/main.js?v=2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65172 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65172 - "GET /css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65172 - "GET /js/main.js?v=2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65182 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65182 - "POST /auth/login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:65182 - "GET /students HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65182 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65190 - "GET /attendance HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65190 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65192 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65192 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65192 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65192 - "GET /reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65192 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65202 - "GET /students HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65202 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65202 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65249 - "GET /reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65249 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65249 - "GET /js/main.js?v=2 HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65249 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65251 - "GET /students HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65251 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /attendance HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /reports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /attendance HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /api/v1/students/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65258 - "GET /api/v1/attendance/ HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [50649]

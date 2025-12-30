@@ -47,6 +47,14 @@ body {
 /* Alerts spacing */
 .alert { margin-bottom: 1rem; }
 
+/* Keep action buttons inline and neatly spaced */
+.table td.actions {
+    white-space: nowrap;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 /* Small helpers */
 .muted { color: var(--muted); }
 

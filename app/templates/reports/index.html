@@ -249,7 +249,8 @@ fetch('/api/v1/students/', { credentials: 'include' })
         students.forEach(s => {
             const option = document.createElement('option');
             option.value = s.id;
-            option.textContent = `${s.name} (${s.level})`;
+            // Use a clearer separator between name and level
+            option.textContent = `${s.name} — ${s.level}`;
             option.dataset.price = s.price_per_class;
             select.appendChild(option);
         });

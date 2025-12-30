@@ -151,12 +151,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${s.age ?? ''}</td>
                         <td>${s.level}</td>
                         <td>${formatCurrency(s.price_per_class)}</td>
-                            <td>
-                                <a class="btn btn-sm btn-info" href="/students/${s.id}">View</a>
-                                <a class="btn btn-sm btn-warning" href="/students/${s.id}/edit">Edit</a>
-                                <button class="btn btn-sm btn-outline-primary download-report-btn" data-id="${s.id}" data-name="${s.name}">Download Report</button>
-                                <button class="btn btn-sm btn-danger delete-btn" data-id="${s.id}">Delete</button>
-                            </td>
+                                    <td class="actions">
+                                        <a class="btn btn-sm btn-info" href="/students/${s.id}">View</a>
+                                        <a class="btn btn-sm btn-warning" href="/students/${s.id}/edit">Edit</a>
+                                        <button class="btn btn-sm btn-outline-primary download-report-btn" data-id="${s.id}" data-name="${s.name}">Download Report</button>
+                                        <button class="btn btn-sm btn-danger delete-btn" data-id="${s.id}">Delete</button>
+                                    </td>
                     `;
                     tbody.appendChild(tr);
                 });
