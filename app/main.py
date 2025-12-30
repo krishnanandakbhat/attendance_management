@@ -74,6 +74,15 @@ async def view_student_page(student_id: int, request: Request, user: Optional[Us
     )
 
 
+@app.get("/students/{student_id}/edit", name="edit_student")
+async def edit_student_page(student_id: int, request: Request, user: Optional[User] = Depends(get_optional_current_user)):
+    """Render the edit student page."""
+    return templates.TemplateResponse(
+        "students/edit.html",
+        {"request": request, "title": "Edit Student", "user": user, "messages": []}
+    )
+
+
 
 # GET: Render login page
 @app.get("/auth/login")

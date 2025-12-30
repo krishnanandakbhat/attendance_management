@@ -72,4 +72,94 @@ document.getElementById('deleteBtn').addEventListener('click', async function() 
     }
 });
 </script>
+
+<!-- Per-student attendance marking -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Mark Attendance for this Student</h5>
+                <div class="d-flex gap-2 mb-2">
+                    <input type="date" id="attendanceDateInput" class="form-control" />
+                    <button id="addDateBtn" class="btn btn-outline-primary">Add Date</button>
+                </div>
+                <ul id="selectedDates" class="list-group mb-3"></ul>
+                <div>
+                    <button id="markMultipleBtn" class="btn btn-success">Mark Attendance for Selected Dates</button>
+                </div>
+                <small class="text-muted d-block mt-2">You can add multiple dates (use this when marking weekly attendance).</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Selected dates management
+const selectedDatesEl = document.getElementById('selectedDates');
+const addDateBtn = document.getElementById('addDateBtn');
+const dateInput = document.getElementById('attendanceDateInput');
+const markMultipleBtn = document.getElementById('markMultipleBtn');
+
+function renderSelectedDates(dates) {
+    selectedDatesEl.innerHTML = '';
+    dates.forEach(d => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `${new Date(d).toLocaleDateString()} <button class="btn btn-sm btn-outline-danger btn-remove" data-date="${d}">Remove</button>`;
+        selectedDatesEl.appendChild(li);
+    });
+    // remove handlers
+    selectedDatesEl.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const d = this.dataset.date;
+            const idx = selectedDates.indexOf(d);
+            if (idx > -1) {
+                selectedDates.splice(idx, 1);
+                renderSelectedDates(selectedDates);
+            }
+        });
+    });
+}
+
+let selectedDates = [];
+addDateBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const val = dateInput.value;
+    if (!val) return alert('Choose a date first');
+    if (selectedDates.includes(val)) return alert('Date already added');
+    selectedDates.push(val);
+    selectedDates.sort();
+    renderSelectedDates(selectedDates);
+});
+
+markMultipleBtn.addEventListener('click', async function() {
+    if (selectedDates.length === 0) return alert('Please add at least one date');
+    if (!confirm(`Mark attendance for ${selectedDates.length} date(s)?`)) return;
+    const failures = [];
+    for (const d of selectedDates) {
+        try {
+            const res = await fetch('/api/v1/attendance/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_id: parseInt(studentId), date: d }),
+                credentials: 'include'
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({detail:'Unknown'}));
+                failures.push({date:d, error: err.detail || 'Failed'});
+            }
+        } catch (err) {
+            failures.push({date:d, error: err.message});
+        }
+    }
+    if (failures.length === 0) {
+        alert('All attendance marked successfully');
+        selectedDates = [];
+        renderSelectedDates(selectedDates);
+    } else {
+        alert('Some dates failed:\n' + failures.map(f => `${f.date}: ${f.error}`).join('\n'));
+    }
+});
+</script>
+
 {% endblock %}
