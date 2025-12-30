@@ -1,4 +1,4 @@
-#!/Users/krishnanandak/attendance_management/.venv/bin/python
+#!/Users/krishnanandak/attendance_management/.venv/bin/python3.11
 import sys
 from httpx import main
 if __name__ == '__main__':

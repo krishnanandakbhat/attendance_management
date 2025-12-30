@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Edit Student</h2>
+                <form id="editStudentForm">
+                    <input type="hidden" id="studentId">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" min="1" max="120" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="level" class="form-label">Level</label>
+                        <select class="form-control" id="level" name="level" required>
+                            <option value="">Select Level</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price_per_class" class="form-label">Price per Class (£)</label>
+                        <input type="number" class="form-control" id="price_per_class" name="price_per_class" step="0.01" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="/students" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const studentId = window.location.pathname.split('/').slice(-2)[0];
+
+async function loadStudent() {
+    try {
+        const resp = await fetch(`/api/v1/students/${studentId}`, { credentials: 'include' });
+        if (!resp.ok) throw new Error('Failed to fetch student');
+        const student = await resp.json();
+        document.getElementById('studentId').value = student.id;
+        document.getElementById('name').value = student.name;
+        document.getElementById('age').value = student.age;
+        document.getElementById('level').value = student.level;
+        document.getElementById('price_per_class').value = parseFloat(student.price_per_class).toFixed(2);
+    } catch (err) {
+        alert('Error loading student: ' + err.message);
+    }
+}
+
+loadStudent();
+
+document.getElementById('editStudentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const payload = {
+        name: document.getElementById('name').value,
+        age: parseInt(document.getElementById('age').value),
+        level: document.getElementById('level').value,
+        price_per_class: parseFloat(document.getElementById('price_per_class').value)
+    };
+
+    try {
+        const response = await fetch(`/api/v1/students/${studentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            credentials: 'include'
+        });
+        if (response.ok) {
+            window.location.href = `/students/${studentId}`;
+        } else {
+            const err = await response.json();
+            alert('Error: ' + (err.detail || 'Failed to update student'));
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+</script>
+{% endblock %}

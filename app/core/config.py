@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["http://127.0.0.1:8000", "http://localhost:8000"]
     
     # Session Management
-    MAX_DEVICES_PER_USER: int = 2
+    MAX_DEVICES_PER_USER: int = 100
     SESSION_CLEANUP_MINUTES: int = 60 * 24  # 24 hours
     
     class Config:

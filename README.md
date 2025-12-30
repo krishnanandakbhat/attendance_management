@@ -10,7 +10,89 @@ A secure, single-host attendance management system built with FastAPI and SQLite
 - Report generation (CSV, XLSX)
 - Secure by default: localhost-only binding with optional IP whitelisting
 
-## Requirements
+## For Non-Technical Users
+
+If you're not familiar with command line or development tools, follow these simple steps:
+
+### Prerequisites
+- Make sure Python 3.11 is installed on your Mac
+- Download or clone this project to your computer
+
+### First Time Setup
+
+1. **Open Terminal** (you can find it in Applications → Utilities)
+
+2. **Navigate to the project folder**:
+   ```bash
+   cd /path/to/attendance_management
+   ```
+   (Replace `/path/to/attendance_management` with where you saved this project)
+
+3. **Set up the environment** (one-time setup):
+   ```bash
+   # Create a virtual environment
+   python3.11 -m venv .venv
+   
+   # Activate it
+   source .venv/bin/activate
+   
+   # Install required packages
+   pip install -r requirements.txt
+   
+   # Create configuration file
+   cp env.example .env
+   
+   # Set up the database
+   export PYTHONPATH=$(pwd)
+   export DATABASE_URL=sqlite+aiosqlite:///./attendance.db
+   alembic upgrade head
+   
+   # Create your admin account
+   python scripts/create_user.py
+   ```
+   Follow the prompts to create your username and password.
+
+### Running the Application
+
+#### Easy Way (Double-Click)
+
+Simply double-click these files in Finder:
+- **Start Server.command** - Starts the server and opens your browser
+- **Stop Server.command** - Safely stops the server
+
+That's it! No Terminal needed for daily use.
+
+#### Alternative Way (Terminal)
+
+If you prefer using Terminal:
+
+**To start the server:**
+```bash
+./start.sh
+```
+
+**To stop the server:**
+```bash
+./stop.sh
+```
+
+### Troubleshooting
+
+- **First time**: macOS may ask "Are you sure you want to open it?" - click "Open"
+- **Permission denied**: Right-click the .command file → "Open" (this bypasses security for trusted files)
+- **Browser doesn't open**: Manually visit `http://127.0.0.1:8000/auth/login`
+- **Create more users**: Double-click "Start Server.command" first, then:
+  ```bash
+  cd /path/to/attendance_management
+  source .venv/bin/activate
+  python scripts/create_user.py
+  ```
+
+---
+
+## For Developers
+
+### Requirements
 
 - Python 3.11+
 - Poetry for dependency management
@@ -45,6 +127,45 @@ A secure, single-host attendance management system built with FastAPI and SQLite
    ```bash
    poetry run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
    ```
+
+### Run locally (without Poetry)
+
+If you prefer a plain venv instead of Poetry, this project works with Python 3.11 and a virtual environment. From the project root:
+
+```bash
+# create and activate a venv (macOS / Linux)
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# copy example env and generate an encryption key (if you don't have one yet)
+cp env.example .env || true
+python - <<'PY'
+from cryptography.fernet import Fernet
+print('AGE_ENCRYPTION_KEY=' + Fernet.generate_key().decode())
+PY
+
+# run alembic migrations to create the DB used by the app
+export PYTHONPATH=$(pwd)
+export DATABASE_URL=sqlite+aiosqlite:///./attendance.db
+alembic upgrade head
+
+# start the dev server
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+### Create a local user (for login)
+
+The project does not expose a registration endpoint by default. To create a user for local testing, run the provided script:
+
+```bash
+source .venv/bin/activate
+python scripts/create_user.py
+# follow the prompts to enter username/email/password
+```
+
+Alternatively, you can run direct SQL against the `attendance.db` file, but the script above handles password hashing correctly.
 
 ## Security Configuration
 

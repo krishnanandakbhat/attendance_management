@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Mark Attendance</h2>
+                
+                <div class="mb-4">
+                    <label for="date" class="form-label"><strong>Select Date:</strong></label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5>Select Students:</h5>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">Select All</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">Deselect All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="studentsLoading" class="text-center">
+                        <p>Loading students...</p>
+                    </div>
+                    
+                    <div id="studentsList" class="border rounded p-3" style="max-height: 400px; overflow-y: auto; display: none;">
+                        <!-- Students will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/attendance" class="btn btn-secondary">Cancel</a>
+                    <button type="button" id="submitBtn" class="btn btn-primary">Mark Attendance for Selected</button>
+                </div>
+
+                <div id="statusMessages" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allStudents = [];
+let existingAttendance = [];
+
+// Set today's date as default
+document.getElementById('date').valueAsDate = new Date();
+
+// Load students
+async function loadStudents() {
+    try {
+        const response = await fetch('/api/v1/students/', { credentials: 'include' });
+        allStudents = await response.json();
+        await checkExistingAttendance();
+        renderStudentsList();
+    } catch (err) {
+        document.getElementById('studentsLoading').innerHTML = `
+            <div class="alert alert-danger">Failed to load students: ${err.message}</div>
+        `;
+    }
+}
+
+// Check existing attendance for the selected date
+async function checkExistingAttendance() {
+    const date = document.getElementById('date').value;
+    if (!date) return;
+    
+    try {
+        const response = await fetch(`/api/v1/attendance/?start_date=${date}&end_date=${date}`, { 
+            credentials: 'include' 
+        });
+        const allAttendance = await response.json();
+        existingAttendance = allAttendance.map(a => a.student_id);
+    } catch (err) {
+        console.error('Failed to load existing attendance:', err);
+        existingAttendance = [];
+    }
+}
+
+// Render students list with checkboxes
+function renderStudentsList() {
+    const container = document.getElementById('studentsList');
+    const loading = document.getElementById('studentsLoading');
+    
+    if (allStudents.length === 0) {
+        loading.innerHTML = '<div class="alert alert-info">No students found. Please add students first.</div>';
+        return;
+    }
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+    
+    container.innerHTML = allStudents.map(student => {
+        const isMarked = existingAttendance.includes(student.id);
+        const statusBadge = isMarked ? '<span class="badge bg-success ms-2">Already Marked</span>' : '';
+        
+        return `
+            <div class="form-check mb-2 p-2 ${isMarked ? 'bg-light' : ''}">
+                <input class="form-check-input" type="checkbox" value="${student.id}" 
+                       id="student_${student.id}" ${isMarked ? 'checked disabled' : ''}>
+                <label class="form-check-label" for="student_${student.id}">
+                    <strong>${student.name}</strong> - ${student.level} (Age: ${student.age})
+                    ${statusBadge}
+                </label>
+            </div>
+        `;
+    }).join('');
+}
+
+// Date change handler
+document.getElementById('date').addEventListener('change', async function() {
+    await checkExistingAttendance();
+    renderStudentsList();
+});
+
+// Select/Deselect all functions
+function selectAll() {
+    document.querySelectorAll('#studentsList input[type="checkbox"]:not(:disabled)').forEach(cb => {
+        cb.checked = true;
+    });
+}
+
+function deselectAll() {
+    document.querySelectorAll('#studentsList input[type="checkbox"]:not(:disabled)').forEach(cb => {
+        cb.checked = false;
+    });
+}
+
+// Submit attendance for selected students
+document.getElementById('submitBtn').addEventListener('click', async function() {
+    const date = document.getElementById('date').value;
+    if (!date) {
+        alert('Please select a date');
+        return;
+    }
+    
+    const selectedCheckboxes = document.querySelectorAll('#studentsList input[type="checkbox"]:checked:not(:disabled)');
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one student');
+        return;
+    }
+    
+    const studentIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+    const statusDiv = document.getElementById('statusMessages');
+    statusDiv.innerHTML = '<div class="alert alert-info">Marking attendance...</div>';
+    
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+    
+    // Mark attendance for each selected student
+    for (const studentId of studentIds) {
+        try {
+            const response = await fetch('/api/v1/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    date: date
+                }),
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                successCount++;
+            } else {
+                const error = await response.json();
+                errorCount++;
+                const studentName = allStudents.find(s => s.id === studentId)?.name || `ID ${studentId}`;
+                errors.push(`${studentName}: ${error.detail}`);
+            }
+        } catch (error) {
+            errorCount++;
+            const studentName = allStudents.find(s => s.id === studentId)?.name || `ID ${studentId}`;
+            errors.push(`${studentName}: ${error.message}`);
+        }
+    }
+    
+    // Show results
+    let message = `<div class="alert alert-success">Successfully marked attendance for ${successCount} student(s).</div>`;
+    if (errorCount > 0) {
+        message += `<div class="alert alert-warning">
+            <strong>Failed for ${errorCount} student(s):</strong>
+            <ul class="mb-0 mt-2">
+                ${errors.map(e => `<li>${e}</li>`).join('')}
+            </ul>
+        </div>`;
+    }
+    
+    statusDiv.innerHTML = message;
+    
+    // Reload the list to show updated status
+    await checkExistingAttendance();
+    renderStudentsList();
+    
+    // Redirect after 2 seconds if all successful
+    if (errorCount === 0) {
+        setTimeout(() => {
+            window.location.href = '/attendance';
+        }, 2000);
+    }
+});
+
+// Initial load
+loadStudents();
+</script>
+{% endblock %}

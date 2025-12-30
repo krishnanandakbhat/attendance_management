@@ -1,0 +1,160 @@
+INFO:     Started server process [48173]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49730 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49735 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49735 - "GET /css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49736 - "GET /js/main.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49744 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49751 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49752 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49752 - "GET /js/main.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49763 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49809 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49848 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49955 - "POST /api/v1/auth/login HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1115, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/app/api/v1/auth.py", line 32, in login
+    if not user or not verify_password(form_data.password, user.password_hash):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/app/core/security.py", line 14, in verify_password
+    return bcrypt.checkpw(
+           ^^^^^^^^^^^^^^^
+ValueError: Invalid salt
+INFO:     127.0.0.1:49967 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49967 - "GET /js/main.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49968 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49968 - "POST /api/v1/auth/login HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1115, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 146, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/app/api/v1/auth.py", line 32, in login
+    if not user or not verify_password(form_data.password, user.password_hash):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/krishnanandak/attendance_management/app/core/security.py", line 14, in verify_password
+    return bcrypt.checkpw(
+           ^^^^^^^^^^^^^^^
+ValueError: Invalid salt
+INFO:     127.0.0.1:50298 - "POST /api/v1/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50299 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50323 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50323 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50324 - "GET /js/main.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50324 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50324 - "POST /api/v1/auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50333 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50333 - "POST /api/v1/auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50392 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50396 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50396 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50397 - "GET /js/main.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50397 - "GET /sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "GET /sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "GET /sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50397 - "POST /auth/logout HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50407 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50407 - "GET /js/main.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50407 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50407 - "POST /api/v1/auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50411 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50411 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50411 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50411 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50411 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50408 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50408 - "GET /students HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50408 - "GET /api/v1/students/ HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50408 - "GET /api/v1/students/ HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50408 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50408 - "POST /api/v1/auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50417 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50429 - "POST /api/v1/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50467 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50467 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50467 - "GET /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50467 - "POST /api/v1/auth/login HTTP/1.1" 400 Bad Request
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48173]

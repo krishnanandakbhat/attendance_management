@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+<h2>Attendance Records
+    <a href="/attendance/mark" class="btn btn-primary float-end">Mark Attendance</a>
+</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Filter Records</h5>
+        <form id="filterForm" class="row g-3">
+            <div class="col-md-4">
+                <label for="filterStudent" class="form-label">Student</label>
+                <select class="form-control" id="filterStudent" name="student_id">
+                    <option value="">All Students</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="filterStartDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="filterStartDate" name="start_date">
+            </div>
+            <div class="col-md-3">
+                <label for="filterEndDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="filterEndDate" name="end_date">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="attendanceGrouped" class="row">
+    <div class="col-12" id="attendanceGroupContainer">
+        <p class="text-center">Loading...</p>
+    </div>
+</div>
+
+<script>
+let studentsMap = {};
+
+// Load students for filter dropdown
+fetch('/api/v1/students/', { credentials: 'include' })
+    .then(resp => resp.json())
+    .then(students => {
+        const select = document.getElementById('filterStudent');
+        students.forEach(s => {
+            studentsMap[s.id] = s.name;
+            const option = document.createElement('option');
+            option.value = s.id;
+            option.textContent = s.name;
+            select.appendChild(option);
+        });
+        loadAttendance();
+    })
+    .catch(err => {
+        console.error('Failed to load students:', err);
+        loadAttendance();
+    });
+
+function loadAttendance(filters = {}) {
+    const container = document.getElementById('attendanceGroupContainer');
+    let url = '/api/v1/attendance/?';
+    if (filters.student_id) url += `student_id=${filters.student_id}&`;
+    if (filters.start_date) url += `start_date=${filters.start_date}&`;
+    if (filters.end_date) url += `end_date=${filters.end_date}&`;
+
+    fetch(url, { credentials: 'include' })
+        .then(resp => {
+            if (!resp.ok) throw new Error('Failed to fetch attendance');
+            return resp.json();
+        })
+        .then(data => {
+            container.innerHTML = '';
+            if (data.length === 0) {
+                container.innerHTML = '<p class="text-center">No attendance records found. <a href="/attendance/mark">Mark attendance</a></p>';
+                return;
+            }
+
+            // Group by date
+            const groups = {};
+            data.forEach(a => {
+                const d = new Date(a.date).toISOString().split('T')[0];
+                if (!groups[d]) groups[d] = [];
+                groups[d].push(a);
+            });
+
+            // Render groups sorted by date desc
+            const dates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+            dates.forEach(dateStr => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3';
+                const humanDate = new Date(dateStr).toLocaleDateString();
+                const studentsList = groups[dateStr].map(rec => `<li class="list-group-item d-flex justify-content-between align-items-center">${studentsMap[rec.student_id] || 'Unknown'}<button class="btn btn-sm btn-danger ms-2 delete-attendance" data-id="${rec.id}">Delete</button></li>`).join('\n');
+                card.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">${humanDate}</h5>
+                            <small class="text-muted">${groups[dateStr].length} attended</small>
+                        </div>
+                        <ul class="list-group list-group-flush mt-3">${studentsList}</ul>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Delete handlers for attendance entries
+            document.querySelectorAll('.delete-attendance').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const attendanceId = this.getAttribute('data-id');
+                    if (!confirm('Delete this attendance record?')) return;
+                    try {
+                        const response = await fetch(`/api/v1/attendance/${attendanceId}`, { method: 'DELETE', credentials: 'include' });
+                        if (response.ok) {
+                            loadAttendance(getCurrentFilters());
+                        } else {
+                            const err = await response.json();
+                            alert('Error: ' + (err.detail || 'Failed to delete'));
+                        }
+                    } catch (err) {
+                        alert('Error: ' + err.message);
+                    }
+                });
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            container.innerHTML = '<p class="text-center text-danger">Error loading attendance records</p>';
+        });
+}
+
+function getCurrentFilters() {
+    return {
+        student_id: document.getElementById('filterStudent').value,
+        start_date: document.getElementById('filterStartDate').value,
+        end_date: document.getElementById('filterEndDate').value
+    };
+}
+
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    loadAttendance(getCurrentFilters());
+});
+</script>
+{% endblock %}

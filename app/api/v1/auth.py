@@ -64,12 +64,13 @@ async def login(
     db.add(session)
     await db.commit()
 
-    # Set cookie
+    # Set cookie (mark secure only when running over HTTPS)
+    secure_cookie = (request.url.scheme == "https")
     response.set_cookie(
         key="session",
         value=access_token,
         httponly=True,
-        secure=True,
+        secure=secure_cookie,
         samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
