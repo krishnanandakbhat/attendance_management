@@ -44,6 +44,7 @@
                         </div>
                         <select class="form-control" id="reportStudent" name="student_id" required multiple size="6" style="height:auto;"></select>
                         <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple students.</small>
+                        <div id="selectedStudentsList" class="mt-3"></div>
                     </div>
                     <div class="mb-3">
                         <label for="detailStartDate" class="form-label">Start Date</label>
@@ -258,6 +259,27 @@ fetch('/api/v1/students/', { credentials: 'include' })
     .catch(err => {
         console.error('Failed to load students:', err);
     });
+
+// Render currently selected students below the multi-select with separators
+function renderSelectedStudents() {
+    const select = document.getElementById('reportStudent');
+    const container = document.getElementById('selectedStudentsList');
+    if (!select || !container) return;
+    const selected = Array.from(select.selectedOptions);
+    if (selected.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    // Render each selected student as a separated block
+    container.innerHTML = selected.map(opt => `
+        <div class="p-2 mb-2 rounded" style="background:#fff;border:1px solid #e9ecef;">
+            <strong>${opt.textContent}</strong>
+        </div>
+    `).join('\n<hr style="margin:6px 0;border-color:#eef;"/>\n');
+}
+
+// Update selected students list when selection changes
+document.getElementById('reportStudent')?.addEventListener('change', renderSelectedStudents);
 
 // Student Summary Report
 document.getElementById('studentSummaryForm').addEventListener('submit', async function(e) {
